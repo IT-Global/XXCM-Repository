@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+ <dataTemplate name="XXCM_REP_INTFZ_AC_FIJO" description="Data Template that contains the data source of customers" version="1.0" >
+	<properties>
+	   <property name="db_fetch_size" value="20" />
+	   <property name="debug_mode" value="off" />
+	</properties> 
+	<dataQuery>
+	 <sqlStatement name="Q_1">
+	 <![CDATA[
+		SELECT /*+ ORDERED */
+                FLK.SEGMENT2 AS SUCURSAL,
+                trunc(sysdate) FECHA
+          FROM XXCM_FA_REITIRENENTS_ALL XAA,
+               APPS.FA_ADDITIONS_TL FAT,
+               APPS.FA_BOOKS FB,
+               APPS.FA_DISTRIBUTION_HISTORY FDH,
+               APPS.FA_LOCATIONS FLK
+         WHERE     XAA.numero_de_activo = FAT.ASSET_ID
+               AND XAA.numero_de_activo = FDH.ASSET_ID
+               AND XAA.numero_de_activo = FB.ASSET_ID
+               AND FDH.LOCATION_ID = FLK.LOCATION_ID
+               AND FB.BOOK_TYPE_CODE <> 'ACE TAX'
+               group by FLK.SEGMENT2		
+	   ]]> 
+	 </sqlStatement> 
+	 <sqlStatement name="Q_2">
+	 <![CDATA[
+		SELECT /*+ ORDERED */ XAA.NUMERO_DE_ACTIVO, 
+               XAA.LIBRO, 
+               XAA.ETIQUETA, 
+               XAA.DESCRIPCION, 
+               XAA.MODELO, 
+               XAA.NUMERO_DE_SERIE, 
+               XAA.FECHA_DE_DEPOSITO, 
+               XAA.VALOR_FIJO_1, 
+               XAA.VALOR_FIJO_2, 
+               XAA.ETIQUETA_ANTERIOR, 
+               XAA.DESCRIPCION_ANTERIOR, 
+               XAA.MODELO_ANTERIOR, 
+               XAA.NUMERO_DE_SERIE_ANTERIOR, 
+               DECODE(XAA.ESTATUS, 'EB', 'ERROR', 'PB', 'PROCESADO', XAA.ESTATUS) AS ESTATUS, 
+               XAA.MENSAJE, 
+               XAA.FECHA_DE_PROCESAMIENTO 
+          FROM XXCM_FA_REITIRENENTS_ALL XAA, 
+               APPS.FA_ADDITIONS_TL FAT, 
+               APPS.FA_BOOKS FB, 
+               APPS.FA_DISTRIBUTION_HISTORY FDH, 
+               APPS.FA_LOCATIONS FLK 
+         WHERE XAA.numero_de_activo = FAT.ASSET_ID 
+           AND XAA.numero_de_activo = FDH.ASSET_ID 
+           AND XAA.numero_de_activo = FB.ASSET_ID 
+           AND FDH.LOCATION_ID = FLK.LOCATION_ID 
+		   AND ESTATUS = 'EB' 
+		   AND FLK.SEGMENT2 = :SUCURSAL
+		   AND TRUNC(fecha_de_procesamiento) = TRUNC (SYSDATE)
+	   ]]> 
+	 </sqlStatement>
+	 <sqlStatement name="Q_3">
+	 <![CDATA[
+		SELECT /*+ ORDERED */ XAA.NUMERO_DE_ACTIVO, 
+               XAA.LIBRO, 
+               XAA.ETIQUETA, 
+               XAA.DESCRIPCION, 
+               XAA.MODELO, 
+               XAA.NUMERO_DE_SERIE, 
+               XAA.FECHA_DE_DEPOSITO, 
+               XAA.VALOR_FIJO_1, 
+               XAA.VALOR_FIJO_2, 
+               XAA.ETIQUETA_ANTERIOR, 
+               XAA.DESCRIPCION_ANTERIOR, 
+               XAA.MODELO_ANTERIOR, 
+               XAA.NUMERO_DE_SERIE_ANTERIOR, 
+               DECODE(XAA.ESTATUS, 'EB', 'ERROR', 'PB', 'PROCESADO', XAA.ESTATUS) AS ESTATUS, 
+               XAA.MENSAJE, 
+               XAA.FECHA_DE_PROCESAMIENTO 
+          FROM XXCM_FA_REITIRENENTS_ALL XAA, 
+               APPS.FA_ADDITIONS_TL FAT, 
+               APPS.FA_BOOKS FB, 
+               APPS.FA_DISTRIBUTION_HISTORY FDH, 
+               APPS.FA_LOCATIONS FLK 
+         WHERE XAA.numero_de_activo = FAT.ASSET_ID 
+           AND XAA.numero_de_activo = FDH.ASSET_ID 
+           AND XAA.numero_de_activo = FB.ASSET_ID 
+           AND FDH.LOCATION_ID = FLK.LOCATION_ID 
+		   AND ESTATUS = 'PB'	
+		   AND FLK.SEGMENT2 = :SUCURSAL
+		   AND TRUNC(fecha_de_procesamiento) = TRUNC (SYSDATE)
+	   ]]> 
+	 </sqlStatement>
+	 </dataQuery>
+	 <dataStructure>
+		 <group name="G_SUCURSALES" source="Q_1">
+		     <element name="SUCURSAL"   		        value="SUCURSAL"/>
+			 <element name="FECHA"   		        	value="FECHA"/>
+			 <group name="G_ERRORES" source="Q_2">
+				 <element name="NUMERO_DE_ACTIVO"   				value="NUMERO_DE_ACTIVO"/>
+				 <element name="LIBRO" 								value="LIBRO"/>
+				 <element name="ETIQUETA" 				    		value="ETIQUETA"/>
+				 <element name="DESCRIPCION" 				    	value="DESCRIPCION"/>
+				 <element name="MODELO" 				            value="MODELO"/>
+				 <element name="NUMERO_DE_SERIE" 				    value="NUMERO_DE_SERIE"/>
+				 <element name="FECHA_DE_DEPOSITO" 				    value="FECHA_DE_DEPOSITO"/>
+				 <element name="VALOR_FIJO_1" 				    	value="VALOR_FIJO_1"/>
+				 <element name="VALOR_FIJO_2" 						value="VALOR_FIJO_2"/>
+				 <element name="ETIQUETA_ANTERIOR" 				    value="ETIQUETA_ANTERIOR"/>
+				 <element name="DESCRIPCION_ANTERIOR" 				value="DESCRIPCION_ANTERIOR"/>
+				 <element name="MODELO_ANTERIOR" 				    value="MODELO_ANTERIOR"/>
+				 <element name="NUMERO_DE_SERIE_ANTERIOR" 			value="NUMERO_DE_SERIE_ANTERIOR"/>
+				 <element name="ESTATUS" 				    		value="ESTATUS"/>
+				 <element name="MENSAJE" 				    		value="MENSAJE"/>
+				 <element name="FECHA_DE_PROCESAMIENTO" 			value="FECHA_DE_PROCESAMIENTO"/>
+			 </group>
+			 <group name="G_PROCESADOS" source="Q_3">
+				 <element name="NUMERO_DE_ACTIVO"   				value="NUMERO_DE_ACTIVO"/>
+				 <element name="LIBRO" 								value="LIBRO"/>
+				 <element name="ETIQUETA" 				    		value="ETIQUETA"/>
+				 <element name="DESCRIPCION" 				    	value="DESCRIPCION"/>
+				 <element name="MODELO" 				            value="MODELO"/>
+				 <element name="NUMERO_DE_SERIE" 				    value="NUMERO_DE_SERIE"/>
+				 <element name="FECHA_DE_DEPOSITO" 				    value="FECHA_DE_DEPOSITO"/>
+				 <element name="VALOR_FIJO_1" 				    	value="VALOR_FIJO_1"/>
+				 <element name="VALOR_FIJO_2" 						value="VALOR_FIJO_2"/>
+				 <element name="ETIQUETA_ANTERIOR" 				    value="ETIQUETA_ANTERIOR"/>
+				 <element name="DESCRIPCION_ANTERIOR" 				value="DESCRIPCION_ANTERIOR"/>
+				 <element name="MODELO_ANTERIOR" 				    value="MODELO_ANTERIOR"/>
+				 <element name="NUMERO_DE_SERIE_ANTERIOR" 			value="NUMERO_DE_SERIE_ANTERIOR"/>
+				 <element name="ESTATUS" 				    		value="ESTATUS"/>
+				 <element name="MENSAJE" 				    		value="MENSAJE"/>
+				 <element name="FECHA_DE_PROCESAMIENTO" 			value="FECHA_DE_PROCESAMIENTO"/>
+			 </group>
+		  </group>	 
+	  </dataStructure>
+  </dataTemplate>
